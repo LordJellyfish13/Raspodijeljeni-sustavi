@@ -1,0 +1,35 @@
+# Render Blueprint: two independently deployed services from this one repo.
+# A push only redeploys the service whose folder changed.
+services:
+  - type: web
+    name: honda-museum-api
+    runtime: python
+    plan: free
+    region: frankfurt
+    rootDir: rs-vjezbe/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.16
+      # The frontend's public URL, for example https://honda-museum.onrender.com
+      - key: CORS_ORIGINS
+        sync: false
+
+  # This service sets its paths from the repo root instead of using rootDir, because Render's docs
+  # disagree on what staticPublishPath is relative to when rootDir is set.
+  - type: web
+    name: honda-museum
+    runtime: static
+    buildCommand: cd rs-vjezbe/frontend && npm ci --include=dev && npm run build
+    staticPublishPath: rs-vjezbe/frontend/dist
+    buildFilter:
+      paths:
+        - rs-vjezbe/frontend/**
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      # The backend's public URL, for example https://honda-museum-api.onrender.com
+      - key: VITE_API_URL
+        sync: false

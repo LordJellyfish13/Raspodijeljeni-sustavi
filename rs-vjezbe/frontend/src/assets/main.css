@@ -1,0 +1,18 @@
+@import './base.css';
+
+#app {
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
